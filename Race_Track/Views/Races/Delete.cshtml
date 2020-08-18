@@ -1,0 +1,120 @@
+﻿@model Race_Track.Models.Race
+
+@{
+    ViewBag.Title = "Remove Racing Vehicle";
+}
+
+<style>
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+<p></p>
+<div class="centered">
+    <p class="livetitle"> Live Vehicles on Racing Track</p>
+    <table id="race_table" class="centered">
+        <thead>
+            <tr>
+                <th>
+                    Vehicle ID
+                </th>
+                <th>
+                    Vehicle Name
+                </th>
+                <th>
+                    Type
+                </th>
+            </tr>
+        </thead>
+        <tbody id="vehicles_values"></tbody>
+    </table>
+</div>
+
+<br />
+<p></p>
+<h4 class="heading">Remove Vehicle from Race</h4>
+<a class="back" href="~/Races">Back to Home</a>
+<h3>Are you sure you want to remove the below vehicle from Race?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+
+        <dt>
+            @Html.DisplayNameFor(model => model.VehicleID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.VehicleID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+
+
+    </dl>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Remove" class="btn btn-primary" />
+        </div>
+    }
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+
+    $(function () {
+
+        GetLiveVehicles();
+        window.setInterval(function () {
+            GetLiveVehicles();
+        }, 5000);
+
+    });
+
+
+
+        function GetLiveVehicles() {
+            $('#race_table > tr').remove();
+            console.log("live data refresh");
+            $.ajax({
+                dataType: "json",
+                type: "GET",
+                url: '@Url.Action("GetLiveVehicles", "Races")',
+                        async: false,
+                        success: function (result) {
+                            var vehiclesVal = '';
+                            $.each(JSON.parse(result), function (index, vehicleObject) {
+                                vehiclesVal = vehiclesVal + '<tr><td>' + vehicleObject.VehicleID + '</td>' +
+                                    '<td>' + vehicleObject.Name + '</td>' +
+                                    '<td>' + vehicleObject.Type + '</td></tr>';
+                            });
+                            $(vehiclesVal).insertAfter($("#vehicles_values"));
+                        },
+                        error: function () {
+                            console.log('Error Getting Live Vehicles - Ajax function call');
+                        }
+            });
+
+        }
+
+    </script>
+}

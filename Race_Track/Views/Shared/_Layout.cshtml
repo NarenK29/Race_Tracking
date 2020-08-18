@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <link href="~/Content/Style.css" rel="stylesheet" type="text/css">
+    <style>
+        .centered {
+            text-align: center !important;
+            vertical-align: central !important;
+        }
+
+        .header {
+            background-color: burlywood !important;
+        }
+
+        .title {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif !important;
+            font-weight: bolder !important;
+        }
+
+        .imgsize {
+            height: 200px !important;
+            width: 50% !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar header navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                @Html.ActionLink("Race Tracking", "Index", "Races", new { area = "" }, new { @class = "navbar-brand title" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    @*<li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
+                        <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>*@
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <div class="centered">
+                <img class="imgsize" src="~/Content/Images/race_bg.jpg" /> <br />  <p></p>
+                <p style="font-weight:bold !important">&copy; @DateTime.Now.Year - Narendran Kumar (Thirdstream Assessment)</p>
+            </div>
+
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

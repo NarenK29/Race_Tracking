@@ -1,0 +1,277 @@
+﻿@model Race_Track.Models.Race
+
+@{
+    ViewBag.Title = "Add Vehicles to Race";
+}
+
+<style>
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+<p></p>
+<div class="centered">
+    <p class="livetitle"> Live Vehicles on Racing Track</p>
+    <table id="race_table" class="centered">
+        <thead>
+            <tr>
+                <th>
+                    Vehicle ID
+                </th>
+                <th>
+                    Vehicle Name
+                </th>
+                <th>
+                    Type
+                </th>
+            </tr>
+        </thead>
+        <tbody id="vehicles_values"></tbody>
+    </table>
+</div>
+
+<br />
+<p></p>
+<h4 class="heading">Add Vehicle to Race</h4>
+
+
+<div>
+    <a class="back" href="~/Races">Back to Home</a>
+</div>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+
+        <div class="form-group">
+            @Html.Label("Vehicle Inspection", htmlAttributes: new { @class = "control-label col-md-2" })
+            <p></p>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Type", new List<SelectListItem>
+                { new SelectListItem { Text = "Please Select", Value = "Please Select", Selected=true },
+                   new SelectListItem { Text = "Car", Value = "Car"},
+                   new SelectListItem { Text = "Truck", Value = "Truck"}
+               }, new { id = "Type", @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Tow Strap", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="checkbox" id="chk_towStrap" />
+            </div>
+        </div>
+        <div class="form-group" id="div_truck">
+            @Html.Label("Ground Clearance", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Editor("Ground_Clearance", new { htmlAttributes = new { id = "Ground_Clearance", @class = "form-control" } })
+            </div>
+        </div>
+
+        <div class="form-group" id="div_car">
+            @Html.Label("Tire Wear Percentage", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Editor("Tire_Wear", new { htmlAttributes = new { id = "Tire_Wear", @class = "form-control" } })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" id="btn_create" value="Add" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+
+    <script>
+
+    $(function () {
+
+        GetLiveVehicles();
+
+        window.setInterval(function () {
+            GetLiveVehicles();
+        }, 5000);
+
+        var result = GetLiveVehiclesCount();
+        if (result == "Not Allowed") {
+            alert("Maximum allowed Vehicles on Racing Track is 5. Please remove and then add a new vehicle.")
+        }
+
+        $("#div_truck").hide();
+        $("#div_car").hide();
+
+        $("#Ground_Clearance").bind('keyup paste', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+
+        $("#Tire_Wear").bind('keyup paste', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        $("#Type").change(function () {
+
+            if ($(this).val() == "Car") {
+                $("#div_car").show();
+                $("#div_truck").hide();
+            }
+            else if ($(this).val() == "Truck") {
+                $("#div_truck").show();
+                $("#div_car").hide();
+            }
+            else {
+                $("#div_truck").hide();
+                $("#div_car").hide();
+            }
+        });
+
+        //Create Button logic
+
+        $("#btn_create").click(function () {
+
+            var errMsg = '';
+            var err = 0;
+
+            if ($("#Name").val() == null || $("#Name").val() == "") {
+                errMsg = errMsg + "Please enter Vehicle Name \n";
+                err = 1;
+            }
+            if ($("#Type").val() == "Please Select" || $("#Type").val() == "") {
+                errMsg = errMsg + "Please select Vehicle Type \n";
+                err = 1;
+            }
+
+
+            if ($("#chk_towStrap").prop("checked") == false) {
+                errMsg = errMsg + "All Vehicles must contain Tow Strap \n";
+                err = 1;
+            }
+
+            var vehType = $("#Type").val();
+            if (vehType == "Truck") {
+                console.log($("#Ground_Clearance").val());
+                if ($("#Ground_Clearance").val() == null || $("#Ground_Clearance").val() == '') {
+                    errMsg = errMsg + "Please enter Ground Clearance value from Ground (inches) \n";
+                    err = 1;
+                }
+                else {
+                    if ($("#Ground_Clearance").val() > 5) {
+                        errMsg = errMsg + "Truck should not be lifted more than 5 inches \n";
+                        err = 1;
+                    }
+                }
+
+            }
+
+            if (vehType == "Car") {
+                if ($("#Tire_Wear").val() == null || $("#Tire_Wear").val() == '') {
+                    errMsg = errMsg + "Please enter Car Tires Wear Percentage \n";
+                    err = 1;
+                }
+                else {
+                    if ($("#Tire_Wear").val() > 85) {
+                        errMsg = errMsg + "Tire Wear % should be less than 85 \n";
+                        err = 1;
+                    }
+                }
+
+            }
+
+            var result = GetLiveVehiclesCount();
+            if (result == "Not Allowed") {
+                errMsg = errMsg + "Maximum allowed Vehicles on Racing Track is 5. Please remove and then add a new vehicle.\n";
+                err = 1;
+            }
+
+            if (err == 1) {
+                alert("Please correct the following errors: \n" + errMsg);
+                return false;
+            }
+            else {
+                return true;
+            }
+
+        });
+
+
+    });
+
+        function GetLiveVehiclesCount() {
+            var output = '';
+            $.ajax({
+                dataType: "json",
+                type: "GET",
+                url: '@Url.Action("GetVehiclesCount", "Races")',
+                        async: false,
+                        success: function (result) {
+                            var data = result.data;
+                            var count = parseInt(data);
+                            console.log(count);
+                            if (count < 5) {
+                                output = "Allowed"
+                            }
+                            else {
+                                output = "Not Allowed"
+                            }
+                        },
+                        error: function () {
+                            console.log('Error Getting Live Vehicles Count - Ajax function call');
+                        }
+            });
+
+            return output;
+
+        }
+
+        function GetLiveVehicles() {
+            $('#race_table > tr').remove();
+            console.log("live data refresh");
+            $.ajax({
+                dataType: "json",
+                type: "GET",
+                url: '@Url.Action("GetLiveVehicles", "Races")',
+                        async: false,
+                        success: function (result) {
+                            var vehiclesVal = '';
+                            $.each(JSON.parse(result), function (index, vehicleObject) {
+                                vehiclesVal = vehiclesVal + '<tr><td>' + vehicleObject.VehicleID + '</td>' +
+                                    '<td>' + vehicleObject.Name + '</td>' +
+                                    '<td>' + vehicleObject.Type + '</td></tr>';
+                            });
+                            $(vehiclesVal).insertAfter($("#vehicles_values"));
+                        },
+                        error: function () {
+                            console.log('Error Getting Live Vehicles - Ajax function call');
+                        }
+            });
+
+        }
+
+    </script>
+}
